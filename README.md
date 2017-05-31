@@ -28,7 +28,12 @@ export SPARK_HOME="$FUSION_HOME/apps/spark-dist/"
  
  export SPARK_HOME="/Users/sanket/home/fusion3.1/3.1.0-beta1/apps/spark-dist/"
  
- # Pending work and currently unsolved issues:
+# Pending work and currently unsolved issues:
  Integrate the code with Fusion in such a way that a json job specification is submitted and it executes the job.
  
  When I navigate to the localhost:8767 I am not able to track the job! Is it the case that only scala jobs or jobs submitted via fusion are traked at the spark-master on local host.
+
+# References:
+http://machinelearningmastery.com/  
+https://databricks.com  
+https://github.com/maxpumperla/elephas
