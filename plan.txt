@@ -1,0 +1,15 @@
+1. Query classification using word2vec and neural networks.
+2. Ecommerce image related.
+3. Tensorflow in spark. Parallel training of multiple models for selecting best set of hyperparameters.
+Steps: 1. Get the training data and test data. Broadcast it in pyspark. 2. Create a set of hyperparameters using itertools.product() // cartesian product and then create a rdd of these set of parameters. Parallelize the rdd and make group experiments in the number of nodes available. Finally run the jobs.
+
+Type of signals you want to analyze. Session queries and results returned. Query intent improvization by looking at the related and unrelated queries in a given session.
+
+Idea one: Query classification for making search results more relevant. For e.g. on the lucidworks website at the home page if you search anything we first classify it and then return the documents from that set of class accordingly
+
+
+Market basket analysis kaggle competition.
+https://www.kaggle.com/c/instacart-market-basket-analysis. The problem is to predict which products will a user buy again? If we are able to model it and solve this problem then we integrate it with fusion signals and provide a json interface just like the one we have made for recommendations.
+Platform that we will use is pyspark and tensorflow. I have some experience in TensorFlow and today I learnt about how to make use of spark's parallel processing capabilities. This is going to be fast as tensorflow uses all the cores available on the 
+
+Outlier detection. Image classification. Tensorflow. Get the basic example working. And find additional dataset.
