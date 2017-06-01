@@ -2,6 +2,7 @@
 # Sanket Shahane
 
 import pyspark
+import pysolr
 import json
 import sys
 import numpy
@@ -15,24 +16,26 @@ from keras.utils import np_utils
 
 # get the spark context
 sc = pyspark.SparkContext()
-# few steps to get the training data.
 seed = 7
 numpy.random.seed(seed)
-(X_train, y_train), (X_test, y_test) = mnist.load_data()
 # flatten 28*28 images to a 784 vector for each image
-num_pixels = X_train.shape[1] * X_train.shape[2]
-X_train = X_train.reshape(X_train.shape[0], num_pixels).astype('float32')
-X_test = X_test.reshape(X_test.shape[0], num_pixels).astype('float32')
-# normalize inputs from 0-255 to 0-1
-X_train = X_train / 255
-X_test = X_test / 255
-# one hot encode outputs
-y_train = np_utils.to_categorical(y_train)
-y_test = np_utils.to_categorical(y_test)
-num_classes = y_test.shape[1]
+# num_pixels = X_train.shape[1] * X_train.shape[2]
+# X_train = X_train.reshape(X_train.shape[0], num_pixels).astype('float32')
+# X_test = X_test.reshape(X_test.shape[0], num_pixels).astype('float32')
 
-X_train = sc.broadcast(X_train)
-y_train = sc.broadcast(y_train)
+num_classes = -1
+
+def import_data_from_solr(url='http://localhost:8983/solr/mnist/'):
+	solr = pysolr.Solr(url, timeout=10)
+	results = solr.search('*:*', **{"fl": "field*"})
+	df = pd.DataFrame(list(results))
+	train=df.sample(frac=0.8,random_state=200)
+	test=df.drop(train.index)
+	X_train = train.drop(["field_1"],axis=1)	# fields_1 : class label
+	y_train = train["field_1"]
+	X_test = test.drop(["field_1"],axis=1)
+	y_test = test["field_1"]
+	return np.array(X_train),np.array(y_train),np.array(X_test),np.array(y_test)
 
 # define baseline model
 def compile_and_execute_model(learning_rate = 0.01, layer1_neurons = 784, optimizer = 'adam', loss = 'categorical_crossentropy'):
@@ -90,17 +93,32 @@ def main():
 	json_object = json.loads(sys.argv[1])
 	learning_rate = list(json_object["learning_rate"])
 	layer1_neurons = list(json_object["layer1_neurons"])
+	save_path = str(json_object["save_path"])
 	print 'learning rate:',learning_rate
 	print 'layer1 neurons:',layer1_neurons
+	print 'save path:',save_path
+	X_train,y_train,X_test,y_test = import_data_from_solr()
+	X_train = X_train / 255
+	X_test = X_test / 255
+	# one hot encode outputs
+	y_train = np_utils.to_categorical(y_train)
+	y_test = np_utils.to_categorical(y_test)
+	num_classes = y_test.shape[1] # global variable
+	X_train = sc.broadcast(X_train)
+	y_train = sc.broadcast(y_train)
+	# Data ready for training
 	results = hypermarameter_tuning(learning_rate,layer1_neurons)
 	print 'Results are ready!'
 	bestModel,bestModelParameters = reconstruct_best_model(results)
 	print 'best model available'
-	return [bestModel,bestModelParameters]
+	bestModel.save(save_path)
+	#return [bestModel,bestModelParameters]
+	# use best_model to predict, evaluate, or save to disk. Requires import h5
+	# bestModel.save('/path/to/savefile.h5')
+	return
+
 if __name__ == '__main__':
 	main()
-# use best_model to predict, evaluate, or save to disk. Requires import h5
-# bestModel.save('/path/to/savefile.h5')
 
 
 # Notes:
