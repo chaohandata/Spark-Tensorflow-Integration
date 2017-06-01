@@ -2,7 +2,8 @@
 # Sanket Shahane
 
 import pyspark
-
+import json
+import sys
 import numpy
 import itertools
 from keras import optimizers
@@ -68,28 +69,36 @@ def reconstruct_best_model(results):
 	model_reconstruction.compile(optimizer=best_model['optimizer'], loss=best_model['loss'])
 	scores = model_reconstruction.evaluate(X_test, y_test, verbose=0)
 	print 'best score:',scores
-	return model_reconstruction
+	return model_reconstruction,results[min_index]
 
 # pass the learning rate and layer1_neurons to experiment out with
 def hypermarameter_tuning(learning_rate = [0.01,0.005,0.025], layer1_neurons = [784,500]):
 	# all combinations of parameters
-	all_experiments = list(itertools.product(learning_rate, layer1_neurons)) 
-	print(len(all_experiments))
+	parameter_combinations = list(itertools.product(learning_rate, layer1_neurons)) 
+	print(len(parameter_combinations))
 	num_nodes = 1
-	n = max(2, int(len(all_experiments) // num_nodes))
+	n = max(2, int(len(parameter_combinations) // num_nodes))
 	n = 1
 	# making groups of the parameters to run in parallel on all the nodes
-	grouped_experiments = [all_experiments[i:i+n] for i in range(0, len(all_experiments), n)]
-	all_exps_rdd = sc.parallelize(grouped_experiments, numSlices=len(grouped_experiments))
+	grouped_experiments = [parameter_combinations[i:i+n] for i in range(0, len(parameter_combinations), n)]
+	parameter_combinations_rdd = sc.parallelize(grouped_experiments, numSlices=len(grouped_experiments))
 	# train in parallel and return the results
-	results = all_exps_rdd.flatMap(lambda z: [compile_and_execute_model(*y) for y in z]).collect()
+	results = parameter_combinations_rdd.flatMap(lambda z: [compile_and_execute_model(*y) for y in z]).collect()
 	return results
 
-if __name__ == '__main__':
-	results = hypermarameter_tuning([0.01,0.03],[700,400])
+def main():
+	json_object = json.loads(sys.argv[1])
+	learning_rate = list(json_object["learning_rate"])
+	layer1_neurons = list(json_object["layer1_neurons"])
+	print 'learning rate:',learning_rate
+	print 'layer1 neurons:',layer1_neurons
+	results = hypermarameter_tuning(learning_rate,layer1_neurons)
 	print 'Results are ready!'
-	bestModel = reconstruct_best_model(results)
+	bestModel,bestModelParameters = reconstruct_best_model(results)
 	print 'best model available'
+	return [bestModel,bestModelParameters]
+if __name__ == '__main__':
+	main()
 # use best_model to predict, evaluate, or save to disk. Requires import h5
 # bestModel.save('/path/to/savefile.h5')
 
