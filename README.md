@@ -5,7 +5,8 @@ We aim to leverage spark's parallel processing abilities and tensorflow's deep l
 
 1. Tensorflow when run on a single node uses all the available resources to train a model. However, often is the case that we need to choose a set of parameters like the number of neurons, learning rate etc. This is where spark plays its role. We can train multiple models simultaneously on multiple nodes.
 2. Since, Spark supports python via the pyspark and py4j libraries it is pretty straight forward to deploy a script to train multiple models in a spark cluster.
-3. Here we have shown a sample script which loads the famous MNIST digit recognition dataset and a feed forward neural network architecture. We train multiple models on the spark cluster nodes with different set of parameters.
+3. Here we have shown a sample script which loads the famous MNIST digit recognition dataset indexed in Solr and a feed forward neural network architecture. We train multiple models on the spark cluster nodes with different set of parameters and save the best model
+4. Finally in a separate job we use this saved model to apply on test dataset parallely using spark's parallel execution capabilites. The output is saved back to a Solr collection specified the json configuration file.
 
 # Execution Instructions:
 1. python spark_tensorflow_train_model.py '{"json":"configuration"}' Pass the json configuration file to the script. Sample file is given.
