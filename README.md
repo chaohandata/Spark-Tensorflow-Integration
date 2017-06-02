@@ -8,9 +8,12 @@ We aim to leverage spark's parallel processing abilities and tensorflow's deep l
 3. Here we have shown a sample script which loads the famous MNIST digit recognition dataset and a feed forward neural network architecture. We train multiple models on the spark cluster nodes with different set of parameters.
 
 # Execution Instructions:
-1. The mnist_ffnn.py code can be copied and run the ./bin/pyspark console. It will finally give you the best trained model in a keras variable called bestModel. It can then be used to predict unseen records or save it to a file for later use.
+1. python spark_tensorflow_train_model.py '{"json":"configuration"}' Pass the json configuration file to the script. Sample file is given.
+2. ./bin/spark-submit /path/to/spark_tensorflow_train_model.py '{"json":"configuration"}' to submit the file to the spark driver as a job.
+3. This will train multiple models based on the set of hyperparameters choosen and will save the best model configuration to a file at location specified in the json configuration.
 
-2. The code can be also submitted as a job to spark driver. Use the command "./bin/spark-submit mnist_ffnn.py"
+4. python spark_tensorflow_apply_model.py '{"json":"configuration"}' Pass the json configuration file to the script. Sample file is given. You need to pass the configuration file, load_url of a solr collection, save_url to save results to a solr collection.
+5. ./bin/spark-submit /path/to/spark_tensorflow_apply_model.py '{"json":"configuration"}' to submit the file to the spark driver as a job.
 
 # Issues you might face when submitting the script as a job:
 It is common to see errors like no module pyspark, or SPARK_HOME not found.
@@ -29,9 +32,10 @@ export SPARK_HOME="$FUSION_HOME/apps/spark-dist/"
  export SPARK_HOME="/Users/sanket/home/fusion3.1/3.1.0-beta1/apps/spark-dist/"
  
 # Pending work and currently unsolved issues:
- Integrate the code with Fusion in such a way that a json job specification is submitted and it executes the job.
+ Create an endpoint and submit a job via curl
  
- When I navigate to the localhost:8767 I am not able to track the job! Is it the case that only scala jobs or jobs submitted via fusion are traked at the spark-master on local host.
+ read/write data from solr as spark rdd. Lucidworks api support unknown.
+ 
 
 # References:
 http://machinelearningmastery.com/  
