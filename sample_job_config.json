@@ -1,1 +1,0 @@
-{"job_type": "python","file_name": "/path/to/mnist_nn.py", "learning_rate" : [0.01,0.005,0.025],"layer1_neurons": [700,600] }

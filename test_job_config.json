@@ -1,0 +1,1 @@
+{"job_type": "python", "file_name": "/path/to/spark_tensorflow_apply_model.py","model_config_path": "/Users/sanket/Desktop/dlhackweek/trained_model_config.npy","load_url" : "http://localhost:8983/solr/mnist/", "save_url": "http://localhost:8983/solr/mnist_prediction/"}
