@@ -6,6 +6,7 @@ import pysolr
 import json
 import sys
 import numpy
+import pandas
 import itertools
 from keras import optimizers
 from keras.datasets import mnist
